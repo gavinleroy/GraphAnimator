@@ -1,32 +1,25 @@
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Font;
+/*
+ * GRAPH ANIMATOR
+ * Copyright Gavin Gray 2020
+ * */
+
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.NumberFormat;
+
 import java.util.*;
 
-import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JMenuBar;
-import javax.swing.JMenu;
-import javax.swing.JButton;
-import javax.swing.JFormattedTextField;
+import javax.swing.*;
 import javax.swing.text.NumberFormatter;
-import javax.swing.text.MaskFormatter;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
-// My Defined Graph class
 import DynamicGraph.*;
+import DynamicGraph.Point;
 
 public class GraphAlgorithmAnimate extends JPanel {
 	// DIMENSION / MATH VARIABLES
-	private static final int DIM_W = 800;
+	private static final int DIM_W = 1000;
 	private static final int DIM_H = 700;
 	private static final int DIAMETER = 40;
 	private static final int W_OFF = DIM_W - DIAMETER * 2;
@@ -35,38 +28,60 @@ public class GraphAlgorithmAnimate extends JPanel {
 	private static final int Y_OFF = 40 + DIAMETER/2;
 	// GUI ITEMS
 	private JMenuBar menuBar;
-	private JMenu propertiesMenu;
-	private JMenu algorithmsMenu;
+	private JMenu algorithmsMenu; // Algorithm Menu Items
 	// Algorithms:
-	// BFS
+	private JRadioButtonMenuItem bfsMenuItem; // BFS
 	// DFS
 	// Dijkstras
 	// Kruskals
 	// Prims
+	private JLabel algorithmLabel;
+	private JMenu propertiesMenu; // Property Menu Items
 	private JCheckBoxMenuItem connectedMenuItem;
 	private JCheckBoxMenuItem directedMenuItem; 
 	private JCheckBoxMenuItem weightedMenuItem; 
 	private JCheckBoxMenuItem negativeMenuItem; 
 	private JCheckBoxMenuItem dagMenuItem;	
-	private JButton startButton;
+	private JButton startButton; // Utility Buttons
 	private JButton genGraphButton;
 	private JButton resetButton;
 	private JFormattedTextField numVertText;
 	// TIMER
-	private Timer timer = null;
+	private Timer timer;
 	// GRAPH ITEMS
+	private HashSet<Graph.Property> g_props;
 	private Graph graph;
 	private Vertex[] verticies;
 	private Edge[] edges;
 	// DRAWING HELP
 	private boolean ExistingGraph;
-	Map<Integer,Color> COLORS = Map.of( 0,Color.BLACK, 1,Color.GRAY, 2,Color.YELLOW, 3,Color.MAGENTA );
+	Map<Integer,Color> COLORS = Map.of( 
+			0, Color.BLACK, 1, Color.GRAY, 2, Color.YELLOW, 3, Color.MAGENTA 
+			);
 
 	public GraphAlgorithmAnimate() {
 		initializeGUIItems();
 	}
 
+	/*
+	 * Helper method to initialize all GUI items, this includes:
+	 * Property Menu:
+	 * 	Check Box Menu items for all graph properites, when
+	 * 	one is clicked the item is either removed or added
+	 * 	to g_prop list which is a parameter to generate a Graph
+	 *
+	 * Algorithm Menu:
+	 * 	Radio Menu items for all available algorithms.
+	 * 	Radio buttons are used because only one algorithm may be 
+	 * 	run at a time.
+	 * Text Box:
+	 * 	Accepts integers which will set the number of nodes in the graph
+	 * Option Buttons: 
+	 * 	Generate Graph: generates new graph with selected properties
+	 * 	Start: starts the selected algorithm on the available graph.
+	 * */
 	private void initializeGUIItems(){
+		// TIMER START --->
 		timer = new Timer(300, new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 //				((Timer) e.getSource()).stop();
@@ -74,26 +89,83 @@ public class GraphAlgorithmAnimate extends JPanel {
 				repaint();
 			}
 		});
+		// TIMER END <---
+		
 		menuBar = new JMenuBar(); // Menu Bar
+		g_props = new HashSet<Graph.Property>();
 
-		// Properties menu and items
+		// Property menu and items START ---> 
 		propertiesMenu = new JMenu("Properties");
-		menuBar.add(propertiesMenu); // Add properties menu to menu bar
+		menuBar.add(propertiesMenu); 
+
 		connectedMenuItem = new JCheckBoxMenuItem("Connected");
+		connectedMenuItem.addActionListener(new ActionListener() {         
+			public void actionPerformed(ActionEvent e) {
+				propertiesMenu.doClick();
+				if(connectedMenuItem.isSelected()) g_props.add(Graph.Property.CONNECTED);
+				else g_props.remove(Graph.Property.CONNECTED);
+			}
+		});
 		directedMenuItem = new JCheckBoxMenuItem("Directed");
+		directedMenuItem.addActionListener(new ActionListener() {         
+			public void actionPerformed(ActionEvent e) {
+				propertiesMenu.doClick();
+				if(directedMenuItem.isSelected()) g_props.add(Graph.Property.DIRECTED);
+				else g_props.remove(Graph.Property.DIRECTED);
+			}
+		});
 		weightedMenuItem = new JCheckBoxMenuItem("Weighted");
+		weightedMenuItem.addActionListener(new ActionListener() {         
+			public void actionPerformed(ActionEvent e) {
+				propertiesMenu.doClick();
+				if(weightedMenuItem.isSelected()) g_props.add(Graph.Property.WEIGHTED);
+				else g_props.remove(Graph.Property.WEIGHTED);
+			}
+		});
 		negativeMenuItem = new JCheckBoxMenuItem("Negative");
+		negativeMenuItem.addActionListener(new ActionListener() {         
+			public void actionPerformed(ActionEvent e) {
+				propertiesMenu.doClick();
+				if(negativeMenuItem.isSelected()) g_props.add(Graph.Property.NEGATIVE);
+				else g_props.remove(Graph.Property.NEGATIVE);
+			}
+		});
 		dagMenuItem = new JCheckBoxMenuItem("DAG");
-		propertiesMenu.add(connectedMenuItem);
+		dagMenuItem.addActionListener(new ActionListener() {         
+			public void actionPerformed(ActionEvent e) {
+				propertiesMenu.doClick();
+				if(dagMenuItem.isSelected()) g_props.add(Graph.Property.DAG);
+				else g_props.remove(Graph.Property.DAG);
+			}
+		}); // ADD PROPERTIES TO MENU
+		propertiesMenu.add(dagMenuItem);
 		propertiesMenu.add(directedMenuItem);
 		propertiesMenu.add(weightedMenuItem);
 		propertiesMenu.add(negativeMenuItem);
-		propertiesMenu.add(dagMenuItem);
+		propertiesMenu.add(connectedMenuItem);
+		// Property menu and items END <--- 
 
-		// Algorithms menu and items
+		// Algorithms menu and items START --->
 		algorithmsMenu = new JMenu("Algorithm");
+		ButtonGroup algoGroup = new ButtonGroup();
+		algorithmLabel = new JLabel("BREADTH FIRST SEARCH");
+		bfsMenuItem = new JRadioButtonMenuItem("BFS");
+		bfsMenuItem.setSelected(true);
+		bfsMenuItem.addActionListener(new ActionListener() {         
+			public void actionPerformed(ActionEvent e) {
+				algorithmLabel.setText("BREADTH FIRST SEARCH");
+			}
+		});
 		menuBar.add(algorithmsMenu);
-		// Create text field only allowing entries of 1 - 26
+		// Add radio buttons to group
+		algoGroup.add(bfsMenuItem);
+		// Add radio buttons to menu
+		algorithmsMenu.add(bfsMenuItem);
+		// Algorithms menu and items END <---
+
+
+
+		// TEXT FIELD START --->
 		NumberFormatter formatter = new NumberFormatter(NumberFormat.getInstance());
 		formatter.setValueClass(Integer.class);
 		formatter.setMinimum(1); // Restrict entry to min of 1
@@ -103,7 +175,9 @@ public class GraphAlgorithmAnimate extends JPanel {
 		numVertText = new JFormattedTextField(formatter); 
 		numVertText.setValue(6); // Initial start value of 6
 		numVertText.setColumns(2); // Set width to 2
+		// TEXT FIELD END <---
 
+		// BUTTONS START --->
 		startButton = new JButton("Start");
 		startButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -121,18 +195,33 @@ public class GraphAlgorithmAnimate extends JPanel {
 		resetButton = new JButton("Reset");
 		resetButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-//				repaint();
 //				startButton.setEnabled(true);
 			}
 		});
+		// BUTTONS END <---
+		
+		
+		
 		// Add all items to Frame
+		add(algorithmLabel);
+		add(new JLabel("          "));
 		add(menuBar);
+		add(new JLabel(" V:"));
 		add(numVertText);
 		add(genGraphButton);
 		add(startButton);
 		add(resetButton);
 	}
 
+	/*
+	 * @param g: Graphics2D object for drawing items to frame
+	 * @param v: Vertex to be drawn to frame
+	 *
+	 * Method to draw a Vertex to the frame. The ID
+	 * of the vertex is used to determine the US English
+	 * capital letter that is associated with the vertex.
+	 * Each vertex is drawn in its designated color.
+	 * */
 	public void drawVertex(Graphics2D g, Vertex v) {
 		int off = DIAMETER / 2;
 		int x = (int)(v.Location.x * W_OFF) + X_OFF;
@@ -204,11 +293,9 @@ public class GraphAlgorithmAnimate extends JPanel {
 	 * */
 	private void generateNewGraph(){
 		//TODO: generate a new graph based on the buttons selected
-		HashSet<Graph.Property> props = new HashSet<Graph.Property>();
-		// TODO: loop through selected properties and add those that are highlighted
 		// Create new graph with #of edges as specified in text field,
 		// and properties as selected in drop down.
-		graph = new Graph( (int)numVertText.getValue(), props);
+		graph = new Graph( (int)numVertText.getValue(), g_props);
 		// Get List of Verticies from graph
 		verticies = graph.get_verticies();
 		// Get List of Edges from Graph
