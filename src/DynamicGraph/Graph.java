@@ -128,12 +128,15 @@ public class Graph {
 			int v = rand.nextInt(V);
 			if(u != v && !ee[u][v]){
 				ee[u][v] = true;
-				ee[v][u] = true; // Initially make it undirected
 				G[u].add(v);
-				G[v].add(u);
+				// If undirected count edge for both directions
+				if(!properties.contains(Property.DIRECTED)){
+					ee[v][u] = true; 
+					G[v].add(u);
+				}
 				Edges[edgec++] = new Edge(properties.contains(Property.WEIGHTED), 
 							properties.contains(Property.DIRECTED), 
-							1, 0, Locations[u], Locations[v]);
+							Weights[u][v], 0, Locations[u], Locations[v]);
 			}
 		}
 	}

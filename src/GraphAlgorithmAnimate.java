@@ -69,7 +69,6 @@ public class GraphAlgorithmAnimate extends JPanel {
 	 * 	Check Box Menu items for all graph properites, when
 	 * 	one is clicked the item is either removed or added
 	 * 	to g_prop list which is a parameter to generate a Graph
-	 *
 	 * Algorithm Menu:
 	 * 	Radio Menu items for all available algorithms.
 	 * 	Radio buttons are used because only one algorithm may be 
@@ -145,6 +144,7 @@ public class GraphAlgorithmAnimate extends JPanel {
 		propertiesMenu.add(connectedMenuItem);
 		// Property menu and items END <--- 
 
+
 		// Algorithms menu and items START --->
 		algorithmsMenu = new JMenu("Algorithm");
 		ButtonGroup algoGroup = new ButtonGroup();
@@ -177,32 +177,33 @@ public class GraphAlgorithmAnimate extends JPanel {
 		numVertText.setColumns(2); // Set width to 2
 		// TEXT FIELD END <---
 
+
+
 		// BUTTONS START --->
 		startButton = new JButton("Start");
 		startButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-//				timer.start();
+				// TODO: implement starting of algorithm
 			}
 		});
-
 		genGraphButton = new JButton("Generate Graph");
 		genGraphButton.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
-//				timer.stop();
 				generateNewGraph();
 			}
 		});
 		resetButton = new JButton("Reset");
 		resetButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				// TODO: possibly change to a pause button
+				// or reset the algorithm
 //				startButton.setEnabled(true);
 			}
 		});
 		// BUTTONS END <---
 		
 		
-		
-		// Add all items to Frame
+		// Add all items to Frame --->
 		add(algorithmLabel);
 		add(new JLabel("          "));
 		add(menuBar);
@@ -253,20 +254,21 @@ public class GraphAlgorithmAnimate extends JPanel {
 		double mag_v = Math.sqrt(v.x * v.x + v.y * v.y);
 		v.x /= mag_v; // Scale v to be a normal vector
 		v.y /= mag_v;
-		v.x *= rad; // Scale v to offset distance, radius of the circles
-		v.y *= rad;
 		// Calculate new point p1
-		Point p1 = new Point(x1 + v.x, y1 + v.y);
+		Point p1 = new Point(x1 + rad * v.x, y1 + rad * v.y);
 		// Calculate new point p2
-		Point p2 = new Point(x2 - v.x, y2 - v.y);
+		Point p2 = new Point(x2 - rad * v.x, y2 - rad * v.y);
 
 		g.setColor(COLORS.get(e.Color)); // Color could change based on algorithm
 		if(e.isDirected) Arrow.drawArrow(g, (int)p1.x, (int)p1.y, (int)p2.x, (int)p2.y);
 		else g.drawLine((int)p1.x, (int)p1.y, (int)p2.x, (int)p2.y);
 		//TODO: Print weights of the edges
-//		if(e.Weighted){
-//			g.setColor(Color.BLACK); // Make color black again for printing edge weight
-//		}
+		if(e.isWeighted){
+			mag_v = Math.abs(mag_v);
+			g.setColor(Color.BLACK); // Make color black again for printing edge weight
+			g.drawString(Integer.toString(e.Weight), 
+					(int)(x1 + mag_v / 3.5 * v.x), (int)(y1 + mag_v / 3.5 * v.y));
+		}
 	}
 
 	/*
