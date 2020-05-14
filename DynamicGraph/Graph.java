@@ -10,8 +10,8 @@ public class Graph {
 	private Random rand;
 	private ArrayList<Integer>[] G;
 	private Point[] Locations;
+	private Vertex[] Verticies;
 	private Edge[] Edges;
-	private int[] Colors;
 	private int[][] Weights;
 
 	public static enum Property{
@@ -25,32 +25,32 @@ public class Graph {
 	public Graph(int v, Property ...props){
 		rand = new Random();
 		V = v;
-		E = v * v;
+		E = v * 2;
 
 		// Do something with the list of properties that is passed in
 		
-		init(v, false);
+		init(false, false); //TODO: allow for dynamic weighted/directed choosing
+		generate_verticies();
 		generate_edges();
 	}
 	
-	private void init(int n, boolean weighted){
+	private void init(boolean weighted, boolean directed){
 		// Initialize Graph size
-		G = new ArrayList[n];
-		Locations = new Point[n];
-		Colors = new int[n];
+		G = new ArrayList[V];
+		Locations = new Point[V];
 		Edges = new Edge[E];
-		for(int i = 0; i < n; i++){
+		Verticies = new Vertex[V];
+		for(int i = 0; i < V; i++){
 			G[i] = new ArrayList();
-			Colors[i] = 0;
 		}
 		generate_locations();
 
 		// Initialize Weight matrix
-		Weights = new int[n][n];
-		for(int i = 0; i < n; i++){
-			for(int j = 0; j < n; j++){
+		Weights = new int[V][V];
+		for(int i = 0; i < V; i++){
+			for(int j = 0; j < V; j++){
 				if(weighted == false) Weights[i][j] = 1;
-				else Weights[i][j] = rand.nextInt( n );
+				else Weights[i][j] = rand.nextInt(V);
 			}
 		}
 	}
@@ -66,6 +66,12 @@ public class Graph {
 			double x = originX + radius * Math.cos(angle);
 			double y = originY + radius * Math.sin(angle);
 			Locations[i] = new Point(x, y);	
+		}
+	}
+
+	private void generate_verticies(){
+		for(int i = 0; i < V; i++){
+			Verticies[i] = new Vertex(Character.toString( ((char)(i + 'A')) ), 1, Locations[i]);
 		}
 	}
 
@@ -88,17 +94,10 @@ public class Graph {
 	}
 
 	public Vertex[] get_verticies(){
-		Vertex[] ret = new Vertex[V];
-		for(int i = 0; i < V; i++){
-			ret[i] = new Vertex(Character.toString( ((char)(i + 'A')) ), Colors[i], Locations[i]);
-		}
-		return ret;
+		return Verticies;
 	}
 
 	public Edge[] get_edges(){
-		// It is easies to pre-generate the 
-		// array of edges to return in the case that the 
-		// graph is undirected
 		return Edges;
 	}
 }
