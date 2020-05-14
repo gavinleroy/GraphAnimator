@@ -3,6 +3,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.NumberFormat;
@@ -59,7 +60,7 @@ public class GraphAlgorithmAnimate extends JPanel {
 	private Edge[] edges;
 	// DRAWING HELP
 	private boolean ExistingGraph;
-	Map<Integer,Color> COLORS = Map.of( 0, Color.GRAY, 1, Color.YELLOW, 2, Color.MAGENTA );
+	Map<Integer,Color> COLORS = Map.of( 0,Color.BLACK, 1,Color.GRAY, 2,Color.YELLOW, 3,Color.MAGENTA );
 
 	public GraphAlgorithmAnimate() {
 		initializeGUIItems();
@@ -97,7 +98,7 @@ public class GraphAlgorithmAnimate extends JPanel {
 		formatter.setValueClass(Integer.class);
 		formatter.setMinimum(1); // Restrict entry to min of 1
 		formatter.setMaximum(26); // Restrict to max 26
-		formatter.setAllowsInvalid(false); // Do not allow invalid changes
+		formatter.setAllowsInvalid(true); // Do not allow invalid changes
 		formatter.setCommitsOnValidEdit(true); // Set value on valid edits
 		numVertText = new JFormattedTextField(formatter); 
 		numVertText.setValue(6); // Initial start value of 6
@@ -126,8 +127,8 @@ public class GraphAlgorithmAnimate extends JPanel {
 		});
 		add(menuBar);
 		add(numVertText);
-		add(startButton);
 		add(genGraphButton);
+		add(startButton);
 		add(resetButton);
 	}
 
@@ -145,13 +146,12 @@ public class GraphAlgorithmAnimate extends JPanel {
 	}
 
 	public void drawVertex(Graphics2D g, Vertex v) {
-		int off = 0 * DIAMETER / 2;
+		int off = DIAMETER / 2;
 		int x = (int)(v.Location.x * W_OFF) + X_OFF;
 		int y = (int)(v.Location.y * H_OFF) + Y_OFF;
 		g.setColor(COLORS.get(v.Color));
 		g.drawOval(x, y, DIAMETER, DIAMETER);
-		g.setColor(Color.BLACK);
-		g.drawString(v.Name, x + off, y + off);
+		g.drawString(v.Name, x + off - 6, y + off + 6);
 	}
 
 	public void drawEdge(Graphics2D g, Edge e) {
@@ -183,6 +183,7 @@ public class GraphAlgorithmAnimate extends JPanel {
 	}
 
 	protected void paintComponent(Graphics2D g){
+		g.setFont(new Font("Courier New", Font.BOLD, 24));
 		if(ExistingGraph){ // Only paint the graph if one exists
 			for(int i = 0; i < edges.length; i++){
 				drawEdge(g, edges[i]); 
