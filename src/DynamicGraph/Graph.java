@@ -9,17 +9,19 @@ public class Graph {
 		DIRECTED, // Default is an undirected graph
 		WEIGHTED, // Default is an unweighted graph
 		NEGATIVE, // Default is strictly positive edges
-		DAG
+			  // For a graph to be negative it also needs
+			  // to be weighted
+		ACYCLIC
 	}
 	private final HashSet<Property> properties;
 	public final int V;
 	public final int E;
 
+	protected ArrayList<Integer>[] G;
+	protected Vertex[] Verticies;
+	protected Edge[] Edges;
 	private Random rand;
-	private ArrayList<Integer>[] G;
 	private Point[] Locations;
-	private Vertex[] Verticies;
-	private Edge[] Edges;
 	private int[][] Weights;
 
 	/*
@@ -31,11 +33,11 @@ public class Graph {
 	public Graph(int v, HashSet<Property> args){
 		rand = new Random();
 		V = v;
-		E = v * 2;
 		properties = args;
 		init(); // Initialize data structures
 		generate_verticies(); // Generate Verticies
-		generate_edges(); // Generae Edges
+		E = generate_edges(); // Generae Edges which returns the number
+				      // of edges actually generated
 	}
 	
 	/*
@@ -47,12 +49,10 @@ public class Graph {
 		// Initialize Graph
 		G = new ArrayList[V];
 		for(int i = 0; i < V; i++){
-			G[i] = new ArrayList();
+			G[i] = new ArrayList<Integer>();
 		}
 		// Initialize Location
 		Locations = new Point[V];
-		// Initialize Edges
-		Edges = new Edge[E];
 		// Initialize Verticies
 		Verticies = new Vertex[V];
 		// Initialize Weight matrix
@@ -73,13 +73,12 @@ public class Graph {
 			// If undirected we only need to do the upper triangle of matrix
 			int j = properties.contains(Property.DIRECTED) ? 0 : i;
 			for(; j < V; j++){
-				if(properties.contains(Property.WEIGHTED)) 
+				if(properties.contains(Property.WEIGHTED)){
 					Weights[i][j] = rand.nextInt(V*2);
-				else 
-					Weights[i][j] = 1;
-				// If negative is allowed each edge has 1/3 chance of being negative
-				if(properties.contains(Property.NEGATIVE) && rand.nextInt() % 3 == 0) 
-					Weights[i][j] *= -1;
+					// If negative is allowed each edge has 1/3 chance of being negative
+					if(properties.contains(Property.NEGATIVE) && rand.nextInt() % 3 == 0) 
+						Weights[i][j] *= -1;
+				}else Weights[i][j] = 1;
 				// If undirected then make sure both sides are same weight
 				if(!properties.contains(Property.DIRECTED)) 
 						Weights[j][i] = Weights[i][j];
@@ -117,28 +116,42 @@ public class Graph {
 		}
 	}
 
-	/* TODO: better implement generating edges based on desired density of graph */
-	private void generate_edges(){
-		// Will need to take into account all the special properties
-		// however, currently just do an undirected unweighted sparse graph	
+	private int generate_edges(){
+		ArrayList<Edge> edges = new ArrayList<Edge>();
 		boolean [][] ee = new boolean[V][V];
+		int [] rank = new int[V]; // Generate random ranks for the verticies
+		for(int i = 0; i < V; i++) rank[i] = rand.nextInt(1000);
+
 		int edgec = 0;
-		while(edgec < E){
-			int u = rand.nextInt(V);
-			int v = rand.nextInt(V);
-			if(u != v && !ee[u][v]){
-				ee[u][v] = true;
-				G[u].add(v);
-				// If undirected count edge for both directions
-				if(!properties.contains(Property.DIRECTED)){
-					ee[v][u] = true; 
-					G[v].add(u);
+		double prob;
+		boolean edge; 
+		boolean dir = properties.contains(Property.DIRECTED);
+		boolean dag = dir && properties.contains(Property.ACYCLIC);
+		if(properties.contains(Property.CONNECTED)) prob = 1.0; // Every edge included
+		else prob = 0.6; // + rand.nextDouble();
+		for(int u = 0; u < V; u++){
+			for(int v = 0; v < V; v++){
+				edge = false;
+				if(!ee[u][v]){ // If edge doesn't already exist
+					double p = rand.nextDouble();
+					// If the graph is a DAG
+					if(dag && rank[u] < rank[v] && p <= prob) 
+						edge = ee[u][v] = true;
+					else if(!dag && dir && p <= prob) // If the graph is just Directed
+						edge = ee[u][v] = true;
+					else if(!dir && p <= prob) // If undirected
+						edge = ee[u][v] = ee[v][u] = true;
+				}	
+				if(edge){ // add edge and increase edge count
+					edges.add(new Edge(properties.contains(Property.WEIGHTED), dir,
+								Weights[u][v], 0, Locations[u], Locations[v]));
+					edgec++;
 				}
-				Edges[edgec++] = new Edge(properties.contains(Property.WEIGHTED), 
-							properties.contains(Property.DIRECTED), 
-							Weights[u][v], 0, Locations[u], Locations[v]);
 			}
-		}
+		} // Initialize the Edge array now that we know how many edges exist
+		Edges = new Edge[edgec];
+		for(int i = 0; i < edges.size(); i++) Edges[i] = edges.get(i);
+		return edgec;
 	}
 
 	// Returns the list of Verticies generated
@@ -149,5 +162,9 @@ public class Graph {
 	// Returns the list of Edges generated
 	public Edge[] get_edges(){
 		return Edges;
+	}
+
+	public Algorithm getalgo(){
+		return new BFSAlgorithm(this);
 	}
 }

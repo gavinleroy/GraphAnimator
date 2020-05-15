@@ -16,6 +16,7 @@ import javax.swing.Timer;
 
 import DynamicGraph.*;
 import DynamicGraph.Point;
+import DynamicGraph.Algorithm;
 
 public class GraphAlgorithmAnimate extends JPanel {
 	// DIMENSION / MATH VARIABLES
@@ -30,6 +31,7 @@ public class GraphAlgorithmAnimate extends JPanel {
 	private JMenuBar menuBar;
 	private JMenu algorithmsMenu; // Algorithm Menu Items
 	// Algorithms:
+	private Algorithm algorithm;
 	private JRadioButtonMenuItem bfsMenuItem; // BFS
 	// DFS
 	// Dijkstras
@@ -41,7 +43,7 @@ public class GraphAlgorithmAnimate extends JPanel {
 	private JCheckBoxMenuItem directedMenuItem; 
 	private JCheckBoxMenuItem weightedMenuItem; 
 	private JCheckBoxMenuItem negativeMenuItem; 
-	private JCheckBoxMenuItem dagMenuItem;	
+	private JCheckBoxMenuItem acyclicMenuItem;	
 	private JButton startButton; // Utility Buttons
 	private JButton genGraphButton;
 	private JButton resetButton;
@@ -129,15 +131,15 @@ public class GraphAlgorithmAnimate extends JPanel {
 				else g_props.remove(Graph.Property.NEGATIVE);
 			}
 		});
-		dagMenuItem = new JCheckBoxMenuItem("DAG");
-		dagMenuItem.addActionListener(new ActionListener() {         
+		acyclicMenuItem = new JCheckBoxMenuItem("Acyclic");
+		acyclicMenuItem.addActionListener(new ActionListener() {         
 			public void actionPerformed(ActionEvent e) {
 				propertiesMenu.doClick();
-				if(dagMenuItem.isSelected()) g_props.add(Graph.Property.DAG);
-				else g_props.remove(Graph.Property.DAG);
+				if(acyclicMenuItem.isSelected()) g_props.add(Graph.Property.ACYCLIC);
+				else g_props.remove(Graph.Property.ACYCLIC);
 			}
 		}); // ADD PROPERTIES TO MENU
-		propertiesMenu.add(dagMenuItem);
+		propertiesMenu.add(acyclicMenuItem);
 		propertiesMenu.add(directedMenuItem);
 		propertiesMenu.add(weightedMenuItem);
 		propertiesMenu.add(negativeMenuItem);
@@ -184,6 +186,7 @@ public class GraphAlgorithmAnimate extends JPanel {
 		startButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// TODO: implement starting of algorithm
+				algorithm = graph.getalgo();
 			}
 		});
 		genGraphButton = new JButton("Generate Graph");
@@ -198,6 +201,7 @@ public class GraphAlgorithmAnimate extends JPanel {
 				// TODO: possibly change to a pause button
 				// or reset the algorithm
 //				startButton.setEnabled(true);
+				algorithm.step();
 			}
 		});
 		// BUTTONS END <---
