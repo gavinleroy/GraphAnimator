@@ -14,6 +14,8 @@ class BFSAlgorithm implements Algorithm {
 	private int graphI;
 	private int adjI;
 
+	//TODO: Change the weights of the edges to be the distance from the source node
+
 	public BFSAlgorithm(Graph g){
 		queue = new LinkedList<Integer>();
 		visited = new boolean[g.V];
