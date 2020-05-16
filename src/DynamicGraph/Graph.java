@@ -188,12 +188,15 @@ public class Graph {
 				ret = new BFSAlgorithm(this);
 				break;
 			case Algorithm.DFS:
+//				ret = new DFSAlgorithm(this);
+//				break;
 			case Algorithm.DIJKSTRAS:
 			case Algorithm.KRUSKALS:
 			case Algorithm.PRIMS:
+			default: 
+				ret = new BFSAlgorithm(this);
 				break;
 		}
-		ret = new BFSAlgorithm(this);
 		return ret;
 	}
 	
