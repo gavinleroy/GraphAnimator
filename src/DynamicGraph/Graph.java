@@ -114,7 +114,7 @@ public class Graph {
 	 * */
 	private void generate_verticies(){
 		for(int i = 0; i < V; i++){
-			Verticies[i] = new Vertex(i, 0, Locations[i]);
+			Verticies[i] = new Vertex(i, Colors.INIT, Locations[i]);
 		}
 	}
 
@@ -166,7 +166,7 @@ public class Graph {
 				if(edge){ // add edge and increase edge count
 					G[u].add(v); // Add the edge to our adjacenty list
 					edges.add(new Edge(properties.contains(Property.WEIGHTED), dir,
-							Weights[u][v], 0, Locations[u], Locations[v]));
+							Weights[u][v], Colors.INIT, Locations[u], Locations[v]));
 					edgec++;
 				}
 			}

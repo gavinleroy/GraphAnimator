@@ -83,11 +83,16 @@ public class GraphAlgorithmAnimate extends JPanel {
 	 * */
 	private void initializeGUIItems(){
 		// TIMER START --->
+		//TODO: Add sliding bar to GUI which controls the timer time
 		timer = new Timer(300, new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-//				((Timer) e.getSource()).stop();
-//				startButton.setEnabled(false);
-				repaint();
+				if(algorithm.isDone()){
+					((Timer) e.getSource()).stop();
+				}else{
+					algorithm.step();
+					startButton.setEnabled(false);
+					repaint();
+				}
 			}
 		});
 		// TIMER END <---
@@ -186,8 +191,11 @@ public class GraphAlgorithmAnimate extends JPanel {
 		startButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// TODO: implement starting of algorithm
-				algorithm = graph.createAlgorithm();
-				repaint();
+				if(ExistingGraph){
+					algorithm = graph.createAlgorithm();
+					repaint();
+					timer.start();
+				}
 			}
 		});
 		genGraphButton = new JButton("Generate Graph");
@@ -201,9 +209,8 @@ public class GraphAlgorithmAnimate extends JPanel {
 			public void actionPerformed(ActionEvent e) {
 				// TODO: possibly change to a pause button
 				// or reset the algorithm
-//				startButton.setEnabled(true);
-				algorithm.step();
-				repaint();
+				timer.stop();
+				startButton.setEnabled(true);
 			}
 		});
 		// BUTTONS END <---
@@ -233,7 +240,7 @@ public class GraphAlgorithmAnimate extends JPanel {
 		int off = DIAMETER / 2;
 		int x = (int)(v.Location.x * W_OFF) + X_OFF;
 		int y = (int)(v.Location.y * H_OFF) + Y_OFF;
-		g.setColor(COLORS.get(v.Color));
+		g.setColor(Colors.GetColor(v.Color));
 		g.drawOval(x, y, DIAMETER, DIAMETER);
 		g.drawString( Character.toString(((char)(v.ID + 'A'))), x + off - 6, y + off + 6);
 	}
@@ -265,13 +272,13 @@ public class GraphAlgorithmAnimate extends JPanel {
 		// Calculate new point p2
 		Point p2 = new Point(x2 - rad * v.x, y2 - rad * v.y);
 
-		g.setColor(COLORS.get(e.Color)); // Color could change based on algorithm
+		g.setColor(Colors.GetColor(e.Color)); // Color could change based on algorithm
 		if(e.isDirected) Arrow.drawArrow(g, (int)p1.x, (int)p1.y, (int)p2.x, (int)p2.y);
 		else g.drawLine((int)p1.x, (int)p1.y, (int)p2.x, (int)p2.y);
 		//TODO: Print weights of the edges
 		if(e.isWeighted){
 			mag_v = Math.abs(mag_v);
-			g.setColor(Color.BLACK); // Make color black again for printing edge weight
+			g.setColor(Colors.GetColor(Colors.INIT)); 
 			g.drawString(Integer.toString(e.Weight), 
 					(int)(x1 + mag_v / 3.5 * v.x), (int)(y1 + mag_v / 3.5 * v.y));
 		}

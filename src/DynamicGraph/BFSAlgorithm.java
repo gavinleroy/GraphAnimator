@@ -4,9 +4,6 @@ import java.util.Queue;
 import java.util.LinkedList;
 
 class BFSAlgorithm implements Algorithm {
-	private final int FOCUSED = 1;
-	private final int ADDED = 2;
-	private final int DONE = 3;
 
 	private Graph graph;
 	private boolean done;
@@ -29,7 +26,7 @@ class BFSAlgorithm implements Algorithm {
 		if(!visited[i]){
 			queue.add(i);
 			visited[i] = true;
-			graph.Verticies[i].Color = ADDED;
+			graph.Verticies[i].Color = Colors.VFOCUSED;
 		}
 	}
 
@@ -41,14 +38,14 @@ class BFSAlgorithm implements Algorithm {
 				queue.remove();
 				itr = true;
 				adjI = 0;
-				graph.Verticies[graphI].Color = FOCUSED;
+				graph.Verticies[graphI].Color = Colors.VFOCUSED;
 			}
 		}else{
 			if(adjI < graph.G[graphI].size()){ // Have more neighbors to add
 				addV( graph.G[graphI].get(adjI) );
 				adjI++;
 			}else{ // Done adding neighbors
-				graph.Verticies[graphI].Color = DONE; // Update color
+				graph.Verticies[graphI].Color = Colors.VDONE; // Update color
 				itr = false;
 			}
 		}
