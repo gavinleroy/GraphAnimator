@@ -41,8 +41,13 @@ class BFSAlgorithm implements Algorithm {
 				graph.Verticies[graphI].Color = Colors.VFOCUSED;
 			}
 		}else{
+			if(adjI > 0) // Set the highlighted edge back to initial state
+				graph.Edges[graph.EdgeIndex[graphI][graph.G[graphI].get(adjI-1)]].Color = Colors.INIT;
 			if(adjI < graph.G[graphI].size()){ // Have more neighbors to add
-				addV( graph.G[graphI].get(adjI) );
+				int neighbor = graph.G[graphI].get(adjI);
+				addV( neighbor );
+				// Set the edge to adjacent neighbor as focused
+				graph.Edges[graph.EdgeIndex[graphI][neighbor]].Color = Colors.EFOCUSED;
 				adjI++;
 			}else{ // Done adding neighbors
 				graph.Verticies[graphI].Color = Colors.VDONE; // Update color

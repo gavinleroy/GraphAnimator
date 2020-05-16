@@ -1,8 +1,5 @@
 package DynamicGraph;
 
-// TODO: implement a COLORS class in the DynamicGraph package
-//       that associates colors with common names that will be used throughout
-
 import java.util.*;
 
 public class Graph {
@@ -21,6 +18,7 @@ public class Graph {
 
 	protected ArrayList<Integer>[] G;
 	protected Vertex[] Verticies;
+	protected int[][] EdgeIndex;
 	protected Edge[] Edges;
 	private Random rand;
 	private Point[] Locations;
@@ -135,6 +133,7 @@ public class Graph {
 	 * 		  set to be our this.E for the object.
 	 * */
 	private int generate_edges(){
+		EdgeIndex = new int[V][V];
 		ArrayList<Edge> edges = new ArrayList<Edge>();
 		boolean [][] ee = new boolean[V][V];
 		int [] rank = new int[V]; // Generate random ranks for the verticies
@@ -161,10 +160,12 @@ public class Graph {
 					else if(!dir && p <= prob){ // If undirected
 						edge = ee[u][v] = ee[v][u] = true;
 						G[v].add(u);
+						EdgeIndex[v][u] = edgec;
 					}
 				}	
 				if(edge){ // add edge and increase edge count
 					G[u].add(v); // Add the edge to our adjacenty list
+					EdgeIndex[u][v] = edgec;
 					edges.add(new Edge(properties.contains(Property.WEIGHTED), dir,
 							Weights[u][v], Colors.INIT, Locations[u], Locations[v]));
 					edgec++;
@@ -180,8 +181,20 @@ public class Graph {
 	 * This method is called by the view in order to get an algorithm object
 	 * on which it can invoke the step() method.
 	 * */
-	public Algorithm createAlgorithm(){
-		return new BFSAlgorithm(this);
+	public Algorithm createAlgorithm(String algo){
+		Algorithm ret;
+		switch(algo){ // Switch on the label passed in to get right object
+			case Algorithm.BFS:
+				ret = new BFSAlgorithm(this);
+				break;
+			case Algorithm.DFS:
+			case Algorithm.DIJKSTRAS:
+			case Algorithm.KRUSKALS:
+			case Algorithm.PRIMS:
+				break;
+		}
+		ret = new BFSAlgorithm(this);
+		return ret;
 	}
 	
 	// Returns the list of Verticies generated

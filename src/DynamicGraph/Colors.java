@@ -10,6 +10,7 @@ import java.awt.Color;
  * */
 public class Colors{
 	//TODO: Add more colors as needed
+	public static final int EFOCUSED = 4;
 	public static final int VDONE = 3;
 	public static final int VFOCUSED = 2;
 	public static final int SHADOW = 1;
@@ -17,8 +18,9 @@ public class Colors{
 	private static Map<Integer, Color> COLORS = Map.of(
 			0,Color.BLACK, 
 			1,Color.GRAY,
-			2,Color.YELLOW,
-			3,Color.MAGENTA
+			2,Color.ORANGE,
+			3,Color.MAGENTA,
+			4,Color.RED
 			);
 	public static Color GetColor(int i){
 		return COLORS.get(i);

@@ -29,15 +29,15 @@ public class GraphAlgorithmAnimate extends JPanel {
 	private static final int Y_OFF = 40 + DIAMETER/2;
 	// GUI ITEMS
 	private JMenuBar menuBar;
-	private JMenu algorithmsMenu; // Algorithm Menu Items
 	// Algorithms:
 	private Algorithm algorithm;
-	private JRadioButtonMenuItem bfsMenuItem; // BFS
-	// DFS
-	// Dijkstras
-	// Kruskals
-	// Prims
-	private JLabel algorithmLabel;
+	private String[] algorithmList = { Algorithm.BFS, 
+					   Algorithm.DFS, 
+					   Algorithm.DIJKSTRAS, 
+					   Algorithm.KRUSKALS, 
+					   Algorithm.PRIMS };
+	private JComboBox algorithmMenu;
+
 	private JMenu propertiesMenu; // Property Menu Items
 	private JCheckBoxMenuItem connectedMenuItem;
 	private JCheckBoxMenuItem directedMenuItem; 
@@ -57,9 +57,6 @@ public class GraphAlgorithmAnimate extends JPanel {
 	private Edge[] edges;
 	// DRAWING HELP
 	private boolean ExistingGraph;
-	Map<Integer,Color> COLORS = Map.of( 
-			0, Color.BLACK, 1, Color.GRAY, 2, Color.YELLOW, 3, Color.MAGENTA 
-			);
 
 	public GraphAlgorithmAnimate() {
 		initializeGUIItems();
@@ -84,7 +81,7 @@ public class GraphAlgorithmAnimate extends JPanel {
 	private void initializeGUIItems(){
 		// TIMER START --->
 		//TODO: Add sliding bar to GUI which controls the timer time
-		timer = new Timer(300, new ActionListener() {
+		timer = new Timer(600, new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if(algorithm.isDone()){
 					((Timer) e.getSource()).stop();
@@ -153,21 +150,8 @@ public class GraphAlgorithmAnimate extends JPanel {
 
 
 		// Algorithms menu and items START --->
-		algorithmsMenu = new JMenu("Algorithm");
-		ButtonGroup algoGroup = new ButtonGroup();
-		algorithmLabel = new JLabel("BREADTH FIRST SEARCH");
-		bfsMenuItem = new JRadioButtonMenuItem("BFS");
-		bfsMenuItem.setSelected(true);
-		bfsMenuItem.addActionListener(new ActionListener() {         
-			public void actionPerformed(ActionEvent e) {
-				algorithmLabel.setText("BREADTH FIRST SEARCH");
-			}
-		});
-		menuBar.add(algorithmsMenu);
-		// Add radio buttons to group
-		algoGroup.add(bfsMenuItem);
-		// Add radio buttons to menu
-		algorithmsMenu.add(bfsMenuItem);
+		algorithmMenu = new JComboBox(algorithmList);
+		algorithmMenu.setSelectedIndex(0);
 		// Algorithms menu and items END <---
 
 
@@ -192,8 +176,8 @@ public class GraphAlgorithmAnimate extends JPanel {
 			public void actionPerformed(ActionEvent e) {
 				// TODO: implement starting of algorithm
 				if(ExistingGraph){
-					algorithm = graph.createAlgorithm();
-					repaint();
+					String algostring = (String)(algorithmMenu).getSelectedItem();
+					algorithm = graph.createAlgorithm(algostring);
 					timer.start();
 				}
 			}
@@ -217,9 +201,8 @@ public class GraphAlgorithmAnimate extends JPanel {
 		
 		
 		// Add all items to Frame --->
-		add(algorithmLabel);
-		add(new JLabel("          "));
 		add(menuBar);
+		add(algorithmMenu);
 		add(new JLabel(" V:"));
 		add(numVertText);
 		add(genGraphButton);
@@ -292,6 +275,7 @@ public class GraphAlgorithmAnimate extends JPanel {
 		g.setFont(new Font("Courier New", Font.BOLD, 24)); 
 		if(ExistingGraph){ // Only paint the graph if one exists
 			// Draw each edge in set
+			g.setStroke(new BasicStroke(2));
 			for(int i = 0; i < edges.length; i++){
 				drawEdge(g, edges[i]); 
 			}
