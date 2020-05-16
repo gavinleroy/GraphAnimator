@@ -1,16 +1,18 @@
 package DynamicGraph;
 
+// TODO: implement a COLORS class in the DynamicGraph package
+//       that associates colors with common names that will be used throughout
+
 import java.util.*;
 
 public class Graph {
-
 	public static enum Property{
-		CONNECTED,    // Default is a sparse graph
-		DIRECTED, // Default is an undirected graph
-		WEIGHTED, // Default is an unweighted graph
-		NEGATIVE, // Default is strictly positive edges
-			  // For a graph to be negative it also needs
-			  // to be weighted
+		CONNECTED, // Default is a sparse graph
+		DIRECTED,  // Default is an undirected graph
+		WEIGHTED,  // Default is an unweighted graph
+		NEGATIVE,  // Default is strictly positive edges
+			   // For a graph to be negative it also needs
+			   // to be weighted
 		ACYCLIC
 	}
 	private final HashSet<Property> properties;
@@ -28,7 +30,7 @@ public class Graph {
 	 * Constructor ** 
 	 * @param int v: the number of desired verticies in the final graph
 	 * @param HashSet<> args: A set of all the desired properties of the graph
-	 * 	which will determine in how the graph is generated.
+	 * 			  which will determine in how the graph is generated.
 	 * */
 	public Graph(int v, HashSet<Property> args){
 		rand = new Random();
@@ -112,48 +114,76 @@ public class Graph {
 	 * */
 	private void generate_verticies(){
 		for(int i = 0; i < V; i++){
-			Verticies[i] = new Vertex(i, 1, Locations[i]);
+			Verticies[i] = new Vertex(i, 0, Locations[i]);
 		}
 	}
 
+	/*
+	 * Generate Edges method: generate the edges randomly of a given graph.
+	 * Edges are generated using something similar to the Erdős-Rényi model,
+	 * we start with a number in the range [0.0,1.0] and for each edge a random
+	 * real number is generated. If it lies below the starting number then we add 
+	 * the edge to the graph.
+	 * This method also takes into account generating Directed, Acyclic, and Connected
+	 * graphs. A connected graph merely starts with a propbability of 1.0, therefore, 
+	 * every edge will be added. NOTE: for a graph to be acyclic it also needs to be
+	 * directed this creating a DAG. The process for a dag is to generate a random 
+	 * topological ordering for the nodes and only allow edges that go from a lower
+	 * rank to a higher one. 
+	 *
+	 * @return edgec: the number of edges that are added to the graph which is then 
+	 * 		  set to be our this.E for the object.
+	 * */
 	private int generate_edges(){
 		ArrayList<Edge> edges = new ArrayList<Edge>();
 		boolean [][] ee = new boolean[V][V];
 		int [] rank = new int[V]; // Generate random ranks for the verticies
-		for(int i = 0; i < V; i++) rank[i] = rand.nextInt(1000);
+		for(int i = 0; i < V; i++) rank[i] = rand.nextInt((int)(~(1 << 31)));
 
 		int edgec = 0;
-		double prob;
-		boolean edge; 
+		double prob; // Starting probability to which edges will be tested
+		boolean edge;  // bool to check whether the edge passed probability test
 		boolean dir = properties.contains(Property.DIRECTED);
 		boolean dag = dir && properties.contains(Property.ACYCLIC);
 		if(properties.contains(Property.CONNECTED)) prob = 1.0; // Every edge included
-		else prob = 0.6; // + rand.nextDouble();
+		else if(dag) prob = 0.55;
+		else prob = 0.4; 
 		for(int u = 0; u < V; u++){
 			for(int v = 0; v < V; v++){
 				edge = false;
-				if(!ee[u][v]){ // If edge doesn't already exist
+				if(!ee[u][v] && u != v){ // If edge doesn't already exist
 					double p = rand.nextDouble();
 					// If the graph is a DAG
-					if(dag && rank[u] < rank[v] && p <= prob) 
+					if(dag && rank[u] < rank[v] && p <= prob)
 						edge = ee[u][v] = true;
 					else if(!dag && dir && p <= prob) // If the graph is just Directed
 						edge = ee[u][v] = true;
-					else if(!dir && p <= prob) // If undirected
+					else if(!dir && p <= prob){ // If undirected
 						edge = ee[u][v] = ee[v][u] = true;
+						G[v].add(u);
+					}
 				}	
 				if(edge){ // add edge and increase edge count
+					G[u].add(v); // Add the edge to our adjacenty list
 					edges.add(new Edge(properties.contains(Property.WEIGHTED), dir,
-								Weights[u][v], 0, Locations[u], Locations[v]));
+							Weights[u][v], 0, Locations[u], Locations[v]));
 					edgec++;
 				}
 			}
 		} // Initialize the Edge array now that we know how many edges exist
-		Edges = new Edge[edgec];
+		Edges = new Edge[edgec]; // Convert ArrayList<Edge> -> Edge[]
 		for(int i = 0; i < edges.size(); i++) Edges[i] = edges.get(i);
 		return edgec;
 	}
 
+	/*
+	 * This method is called by the view in order to get an algorithm object
+	 * on which it can invoke the step() method.
+	 * */
+	public Algorithm createAlgorithm(){
+		return new BFSAlgorithm(this);
+	}
+	
 	// Returns the list of Verticies generated
 	public Vertex[] get_verticies(){
 		return Verticies;
@@ -164,7 +194,4 @@ public class Graph {
 		return Edges;
 	}
 
-	public Algorithm getalgo(){
-		return new BFSAlgorithm(this);
-	}
 }

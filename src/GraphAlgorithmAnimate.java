@@ -186,7 +186,8 @@ public class GraphAlgorithmAnimate extends JPanel {
 		startButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// TODO: implement starting of algorithm
-				algorithm = graph.getalgo();
+				algorithm = graph.createAlgorithm();
+				repaint();
 			}
 		});
 		genGraphButton = new JButton("Generate Graph");
@@ -202,6 +203,7 @@ public class GraphAlgorithmAnimate extends JPanel {
 				// or reset the algorithm
 //				startButton.setEnabled(true);
 				algorithm.step();
+				repaint();
 			}
 		});
 		// BUTTONS END <---
@@ -306,7 +308,6 @@ public class GraphAlgorithmAnimate extends JPanel {
 		verticies = graph.get_verticies();
 		// Get List of Edges from Graph
 		edges = graph.get_edges();
-
 
 		ExistingGraph = true; // Alert the view that the graph now exists
 		// Repaint the view with the newly created graph
