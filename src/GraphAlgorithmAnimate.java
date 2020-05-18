@@ -6,6 +6,8 @@
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.text.NumberFormat;
 
 import java.util.*;
@@ -20,14 +22,15 @@ import DynamicGraph.Algorithm;
 
 public class GraphAlgorithmAnimate extends JPanel {
 	// DIMENSION / MATH VARIABLES
-	private static final int DIM_W = 1000;
+	private static final int DIM_W = 1200;
 	private static final int DIM_H = 700;
 	private static final int DIAMETER = 40;
 	private static final int W_OFF = DIM_W - DIAMETER * 2;
-	private static final int H_OFF = DIM_H - DIAMETER * 3;
+	private static final int H_OFF = DIM_H - DIAMETER * 4;
 	private static final int X_OFF = 20;
 	private static final int Y_OFF = 40 + DIAMETER/2;
 	// GUI ITEMS
+	private JLabel sourceLabel;
 	private JMenuBar menuBar;
 	// Algorithms:
 	private Algorithm algorithm;
@@ -46,7 +49,7 @@ public class GraphAlgorithmAnimate extends JPanel {
 	private JCheckBoxMenuItem acyclicMenuItem;	
 	private JButton startButton; // Utility Buttons
 	private JButton genGraphButton;
-	private JButton resetButton;
+	private JButton pauseButton;
 	private JFormattedTextField numVertText;
 	// TIMER
 	private Timer timer;
@@ -79,20 +82,8 @@ public class GraphAlgorithmAnimate extends JPanel {
 	 * 	Start: starts the selected algorithm on the available graph.
 	 * */
 	private void initializeGUIItems(){
-		// TIMER START --->
-		//TODO: Add sliding bar to GUI which controls the timer time
-		timer = new Timer(600, new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if(algorithm.isDone()){
-					((Timer) e.getSource()).stop();
-				}else{
-					algorithm.step();
-					startButton.setEnabled(false);
-					repaint();
-				}
-			}
-		});
-		// TIMER END <---
+
+		sourceLabel = new JLabel("A");
 		
 		menuBar = new JMenuBar(); // Menu Bar
 		g_props = new HashSet<Graph.Property>();
@@ -169,16 +160,38 @@ public class GraphAlgorithmAnimate extends JPanel {
 		// TEXT FIELD END <---
 
 
+		// TIMER START --->
+		//TODO: Add sliding bar to GUI which controls the timer time
+		timer = new Timer(500, new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(algorithm.isDone()){
+					((Timer) e.getSource()).stop();
+					startButton.setEnabled(false);
+					pauseButton.setEnabled(false);
+				}else{
+					algorithm.step();
+					startButton.setEnabled(false);
+					repaint();
+				}
+			}
+		});
+		// TIMER END <---
 
 		// BUTTONS START --->
 		startButton = new JButton("Start");
 		startButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				// TODO: implement starting of algorithm
 				if(ExistingGraph){
-					String algostring = (String)(algorithmMenu).getSelectedItem();
-					algorithm = graph.createAlgorithm(algostring);
+					String text = ((JButton)e.getSource()).getText();
+					if(text == "Start"){
+						String algostring = (String)(algorithmMenu).getSelectedItem();
+						int sourceVal = (int)sourceLabel.getText().charAt(0) - (int)'A';
+						algorithm = graph.createAlgorithm(algostring, sourceVal);
+					}
 					timer.start();
+					pauseButton.setText("Pause");
+					pauseButton.setEnabled(true);
+					((JButton)e.getSource()).setEnabled(false);
 				}
 			}
 		});
@@ -186,19 +199,46 @@ public class GraphAlgorithmAnimate extends JPanel {
 		genGraphButton.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
 				generateNewGraph();
+				buttonStartState();
 			}
 		});
-		resetButton = new JButton("Reset");
-		resetButton.addActionListener(new ActionListener() {
+		pauseButton = new JButton("Pause");
+		pauseButton.setEnabled(false);
+		pauseButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				// TODO: possibly change to a pause button
-				// or reset the algorithm
-				timer.stop();
-				startButton.setEnabled(true);
+				String text = ((JButton)e.getSource()).getText();
+				if(text == "Step"){
+					algorithm.step();
+					repaint();
+					if(algorithm.isDone()){ 
+						buttonStartState();
+						startButton.setEnabled(false);
+					}
+				}else if(text == "Pause"){
+					timer.stop();
+					startButton.setText("Resume");
+					startButton.setEnabled(true);
+					((JButton)e.getSource()).setText("Step");
+				}
 			}
 		});
 		// BUTTONS END <---
+
+		// MOUSE EVENTS START --->
 		
+		addMouseListener(new MouseAdapter(){
+			@Override
+			public void mousePressed(MouseEvent e){
+				if(ExistingGraph){
+					int closest = findClosestVertex(e.getX(), e.getY());
+					if(closest >= 0){
+						String newLabel = Character.toString((char)(closest+'A'));
+						sourceLabel.setText(newLabel);
+					}
+				}
+			}	
+		});
+		// MOUSE EVENTS END <---
 		
 		// Add all items to Frame --->
 		add(menuBar);
@@ -207,7 +247,31 @@ public class GraphAlgorithmAnimate extends JPanel {
 		add(numVertText);
 		add(genGraphButton);
 		add(startButton);
-		add(resetButton);
+		add(pauseButton);
+		add(new JLabel("Starting Vertex: "));
+		add(sourceLabel);
+	}
+
+	/*
+	 * Simple Helper method to start the buttons at their initial state
+	 * */
+	private void buttonStartState(){
+		timer.stop();
+		startButton.setEnabled(true);
+		startButton.setText("Start");
+		pauseButton.setEnabled(false);
+		pauseButton.setText("Pause");
+	}
+
+	private int findClosestVertex(int x1, int y1){
+		for(int i = 0; i < verticies.length; i++){
+			int x2 = (int)(verticies[i].Location.x * W_OFF) + X_OFF + DIAMETER / 2;
+			int y2 = (int)(verticies[i].Location.y * H_OFF) + Y_OFF + DIAMETER / 2;
+			if(Math.sqrt((Math.pow(x1-x2, 2)) + (Math.pow(y1-y2,2))) <= DIAMETER / 2){
+				return i;
+			}
+		}
+		return -1;
 	}
 
 	/*
@@ -256,9 +320,10 @@ public class GraphAlgorithmAnimate extends JPanel {
 		Point p2 = new Point(x2 - rad * v.x, y2 - rad * v.y);
 
 		g.setColor(Colors.GetColor(e.Color)); // Color could change based on algorithm
+		// If graph is directed draw an Arrow instead
 		if(e.isDirected) Arrow.drawArrow(g, (int)p1.x, (int)p1.y, (int)p2.x, (int)p2.y);
 		else g.drawLine((int)p1.x, (int)p1.y, (int)p2.x, (int)p2.y);
-		//TODO: Print weights of the edges
+		// If graph is weighted then we need to print the weight as well
 		if(e.isWeighted){
 			mag_v = Math.abs(mag_v);
 			g.setColor(Colors.GetColor(Colors.INIT)); 
@@ -291,19 +356,18 @@ public class GraphAlgorithmAnimate extends JPanel {
 	 * Generate Graph with currently selected specifications
 	 * */
 	private void generateNewGraph(){
-		//TODO: generate a new graph based on the buttons selected
-		// Create new graph with #of edges as specified in text field,
+		// Create new graph with # of edges as specified in text field,
 		// and properties as selected in drop down.
 		graph = new Graph( (int)numVertText.getValue(), g_props);
 		// Get List of Verticies from graph
 		verticies = graph.get_verticies();
 		// Get List of Edges from Graph
 		edges = graph.get_edges();
-
 		ExistingGraph = true; // Alert the view that the graph now exists
 		// Repaint the view with the newly created graph
 		repaint();
 	}
+
 	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
@@ -318,7 +382,7 @@ public class GraphAlgorithmAnimate extends JPanel {
 	public static void main(String[] args) {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				JFrame frame = new JFrame("Graph Algorithms");
+				JFrame frame = new JFrame("Graph Animator");
 				frame.add(new GraphAlgorithmAnimate());
 				frame.pack();
 				frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

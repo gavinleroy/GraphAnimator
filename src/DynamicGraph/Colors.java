@@ -10,6 +10,8 @@ import java.awt.Color;
  * */
 public class Colors{
 	//TODO: Add more colors as needed
+	public static final int TREEEDGE = 3;
+	public static final int BACKEDGE = 5;
 	public static final int EFOCUSED = 4;
 	public static final int VDONE = 3;
 	public static final int VFOCUSED = 2;
@@ -20,7 +22,8 @@ public class Colors{
 			1,Color.GRAY,
 			2,Color.ORANGE,
 			3,Color.MAGENTA,
-			4,Color.RED
+			4,Color.RED,
+			5,Color.LIGHT_GRAY
 			);
 	public static Color GetColor(int i){
 		return COLORS.get(i);

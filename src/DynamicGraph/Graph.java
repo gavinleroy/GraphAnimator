@@ -22,7 +22,7 @@ public class Graph {
 	protected Edge[] Edges;
 	private Random rand;
 	private Point[] Locations;
-	private int[][] Weights;
+	protected int[][] Weights;
 
 	/*
 	 * Constructor ** 
@@ -146,7 +146,7 @@ public class Graph {
 		boolean dag = dir && properties.contains(Property.ACYCLIC);
 		if(properties.contains(Property.CONNECTED)) prob = 1.0; // Every edge included
 		else if(dag) prob = 0.55;
-		else prob = 0.4; 
+		else prob = 0.2; 
 		for(int u = 0; u < V; u++){
 			for(int v = 0; v < V; v++){
 				edge = false;
@@ -181,20 +181,20 @@ public class Graph {
 	 * This method is called by the view in order to get an algorithm object
 	 * on which it can invoke the step() method.
 	 * */
-	public Algorithm createAlgorithm(String algo){
+	public Algorithm createAlgorithm(String algo, int s){
 		Algorithm ret;
 		switch(algo){ // Switch on the label passed in to get right object
 			case Algorithm.BFS:
-				ret = new BFSAlgorithm(this);
+				ret = new BFSAlgorithm(this, s);
 				break;
 			case Algorithm.DFS:
-//				ret = new DFSAlgorithm(this);
-//				break;
+				ret = new DFSAlgorithm(this, s);
+				break;
 			case Algorithm.DIJKSTRAS:
 			case Algorithm.KRUSKALS:
 			case Algorithm.PRIMS:
 			default: 
-				ret = new BFSAlgorithm(this);
+				ret = new BFSAlgorithm(this, s);
 				break;
 		}
 		return ret;

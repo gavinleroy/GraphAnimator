@@ -13,23 +13,27 @@ class BFSAlgorithm implements Algorithm {
 
 	private int graphI;
 	private int adjI;
+	private int dist;
 
 	//TODO: Change the weights of the edges to be the distance from the source node
 
-	public BFSAlgorithm(Graph g){
+	public BFSAlgorithm(Graph g, int s){
 		queue = new LinkedList<Integer>();
 		visited = new boolean[g.V];
 		graph = g;
 		done = itr = false;
-		addV(0);
+		graph.Verticies[s].Distance = 0;
+		addV(s);
 	}
 
-	private void addV(int i){
+	private boolean addV(int i){
 		if(!visited[i]){
 			queue.add(i);
 			visited[i] = true;
 			graph.Verticies[i].Color = Colors.VFOCUSED;
+			return true;
 		}
+		return false;
 	}
 
 	public void step(){
@@ -40,16 +44,21 @@ class BFSAlgorithm implements Algorithm {
 				queue.remove();
 				itr = true;
 				adjI = 0;
-				graph.Verticies[graphI].Color = Colors.VFOCUSED;
 			}
 		}else{
-			if(adjI > 0) // Set the highlighted edge back to initial state
-				graph.Edges[graph.EdgeIndex[graphI][graph.G[graphI].get(adjI-1)]].Color = Colors.INIT;
 			if(adjI < graph.G[graphI].size()){ // Have more neighbors to add
 				int neighbor = graph.G[graphI].get(adjI);
-				addV( neighbor );
-				// Set the edge to adjacent neighbor as focused
-				graph.Edges[graph.EdgeIndex[graphI][neighbor]].Color = Colors.EFOCUSED;
+				if(addV( neighbor )){
+					graph.Edges[graph.EdgeIndex[graphI][neighbor]].Weight =
+					        graph.Verticies[neighbor].Distance = 
+				       		graph.Verticies[graphI].Distance + 
+					        graph.Weights[graphI][neighbor];	
+					graph.Edges[graph.EdgeIndex[graphI][neighbor]].isWeighted = true;
+					graph.Edges[graph.EdgeIndex[graphI][neighbor]].Color = Colors.TREEEDGE;
+				}else{
+					if(graph.Edges[graph.EdgeIndex[graphI][neighbor]].Color != Colors.TREEEDGE)
+						graph.Edges[graph.EdgeIndex[graphI][neighbor]].Color = Colors.BACKEDGE;
+				}
 				adjI++;
 			}else{ // Done adding neighbors
 				graph.Verticies[graphI].Color = Colors.VDONE; // Update color
