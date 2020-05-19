@@ -352,7 +352,7 @@ public class GraphAlgorithmAnimate extends JPanel {
 		// If graph is weighted then we need to print the weight as well
 		if(e.isWeighted){
 			mag_v = Math.abs(mag_v);
-			g.setColor(Colors.GetColor(Colors.INIT)); // Draw text in initial color (BLACK)
+//			g.setColor(Colors.GetColor(Colors.INIT)); // Draw text in initial color (BLACK)
 			g.drawString(Integer.toString(e.Weight), 
 					(int)(x1 + mag_v / 3.5 * v.x), (int)(y1 + mag_v / 3.5 * v.y));
 		}
@@ -368,7 +368,10 @@ public class GraphAlgorithmAnimate extends JPanel {
 			// Draw each edge in set
 			g.setStroke(new BasicStroke(2));
 			for(int i = 0; i < edges.length; i++){
-				drawEdge(g, edges[i]); 
+				if(edges[i].Color != Colors.TREEEDGE) drawEdge(g, edges[i]); 
+			}
+			for(int i = 0; i < edges.length; i++){
+				if(edges[i].Color == Colors.TREEEDGE) drawEdge(g, edges[i]); 
 			}
 			g.setStroke(new BasicStroke(4)); // Set larger stroke for verticies
 			// Draw each vertex in set
