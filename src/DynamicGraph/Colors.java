@@ -12,8 +12,9 @@ public class Colors{
 	//TODO: Add more colors as needed
 	public static final int TREEEDGE = 3;
 	public static final int BACKEDGE = 5;
-	public static final int EFOCUSED = 4;
+	public static final int EFOCUSED = 5;
 	public static final int VDONE = 3;
+	public static final int EDONE = 3;
 	public static final int VFOCUSED = 2;
 	public static final int SHADOW = 1;
 	public static final int INIT = 0;

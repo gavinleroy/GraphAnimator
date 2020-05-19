@@ -310,11 +310,12 @@ public class GraphAlgorithmAnimate extends JPanel {
 		int y = (int)(v.Location.y * H_OFF) + Y_OFF;
 		g.setColor(Colors.GetColor(v.Color));
 		g.drawOval(x, y, DIAMETER, DIAMETER);
-		g.drawString( Character.toString(((char)(v.ID + 'A'))), x + off - 6, y + off + 6);
+		g.drawString( Character.toString(((char)(v.ID + 'A'))), x + off - 8, y + off + 8);
 		if((String)(algorithmMenu).getSelectedItem() == Algorithm.DIJKSTRAS || 
-		(String)(algorithmMenu).getSelectedItem() == Algorithm.BFS ){ 
+		(String)(algorithmMenu).getSelectedItem() == Algorithm.BFS ||
+ (String)(algorithmMenu).getSelectedItem() == Algorithm.PRIMS){ // TODO: remove
 			String d = (v.Distance == Integer.MAX_VALUE) ? "INF" : Integer.toString(v.Distance);
-			g.drawString(d, x, y);
+			g.drawString(d, x, y - 2);
 		}
 	}
 

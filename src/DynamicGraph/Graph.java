@@ -198,6 +198,8 @@ public class Graph {
 				break;
 			case Algorithm.KRUSKALS:
 			case Algorithm.PRIMS:
+				ret = new PrimsAlgorithm(this, s);
+				break;
 			default: 
 				ret = new BFSAlgorithm(this, s);
 				break;
