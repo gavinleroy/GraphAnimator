@@ -18,11 +18,12 @@ public class Graph {
 
 	protected ArrayList<Integer>[] G;
 	protected Vertex[] Verticies;
+	protected int[][] Weights;
 	protected int[][] EdgeIndex;
 	protected Edge[] Edges;
+	protected boolean[] visited;
 	private Random rand;
 	private Point[] Locations;
-	protected int[][] Weights;
 
 	/*
 	 * Constructor ** 
@@ -47,6 +48,7 @@ public class Graph {
 	 * */
 	private void init(){
 		// Initialize Graph
+		visited = new boolean[V];
 		G = new ArrayList[V];
 		for(int i = 0; i < V; i++){
 			G[i] = new ArrayList<Integer>();
@@ -73,7 +75,8 @@ public class Graph {
 			// If undirected we only need to do the upper triangle of matrix
 			int j = properties.contains(Property.DIRECTED) ? 0 : i;
 			for(; j < V; j++){
-				if(properties.contains(Property.WEIGHTED)){
+				if(i == j) Weights[i][j] = 0; // Make sure self edges have no weight
+				else if(properties.contains(Property.WEIGHTED)){
 					Weights[i][j] = rand.nextInt(V*2);
 					// If negative is allowed each edge has 1/3 chance of being negative
 					if(properties.contains(Property.NEGATIVE) && rand.nextInt() % 3 == 0) 
@@ -146,7 +149,7 @@ public class Graph {
 		boolean dag = dir && properties.contains(Property.ACYCLIC);
 		if(properties.contains(Property.CONNECTED)) prob = 1.0; // Every edge included
 		else if(dag) prob = 0.55;
-		else prob = 0.2; 
+		else prob = 0.25; 
 		for(int u = 0; u < V; u++){
 			for(int v = 0; v < V; v++){
 				edge = false;
@@ -191,6 +194,8 @@ public class Graph {
 				ret = new DFSAlgorithm(this, s);
 				break;
 			case Algorithm.DIJKSTRAS:
+				ret = new DijkstrasAlgorithm(this, s);
+				break;
 			case Algorithm.KRUSKALS:
 			case Algorithm.PRIMS:
 			default: 
