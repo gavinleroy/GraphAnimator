@@ -1,13 +1,10 @@
 /*
  * GRAPH ANIMATOR
- * Copyright Gavin Gray 2020
+ * Copyright (c) Gavin Gray May, 2020
  * */
 
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.text.NumberFormat;
 
 import java.util.*;
@@ -15,6 +12,8 @@ import java.util.*;
 import javax.swing.*;
 import javax.swing.text.NumberFormatter;
 import javax.swing.Timer;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import DynamicGraph.*;
 import DynamicGraph.Point;
@@ -22,14 +21,16 @@ import DynamicGraph.Algorithm;
 
 public class GraphAlgorithmAnimate extends JPanel {
 	// DIMENSION / MATH VARIABLES
-	private static final int DIM_W = 1200;
-	private static final int DIM_H = 700;
-	private static final int DIAMETER = 40;
-	private static final int W_OFF = DIM_W - DIAMETER * 2;
-	private static final int H_OFF = DIM_H - DIAMETER * 4;
-	private static final int X_OFF = 20;
-	private static final int Y_OFF = 40 + DIAMETER/2;
+	private static int DIM_W = 1200;
+	private static int DIM_H = 700;
+	private static int DIAMETER = 40;
+	private static int W_OFF;// = DIM_W - DIAMETER * 2;
+	private static int H_OFF;// = DIM_H - DIAMETER * 3;
+	private static int X_OFF = 20;
+	private static int Y_OFF = 40 + DIAMETER/2;
+	private static final int TIMER_MAX = 1000;
 	// GUI ITEMS
+	private JSlider timerSpeed;
 	private JLabel sourceLabel;
 	private JMenuBar menuBar;
 	// Algorithms:
@@ -161,12 +162,11 @@ public class GraphAlgorithmAnimate extends JPanel {
 
 
 		// TIMER START --->
-		//TODO: Add sliding bar to GUI which controls the timer time
-		timer = new Timer(500, new ActionListener() {
+		timer = new Timer(TIMER_MAX / 2, new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if(algorithm.isDone()){
 					((Timer) e.getSource()).stop();
-					startButton.setEnabled(false);
+					startButton.setEnabled(true);
 					pauseButton.setEnabled(false);
 				}else{
 					algorithm.step();
@@ -176,6 +176,16 @@ public class GraphAlgorithmAnimate extends JPanel {
 			}
 		});
 		// TIMER END <---
+
+		// SPEED SLIDER START --->
+		timerSpeed = new JSlider(0, TIMER_MAX - 10);
+		timerSpeed.addChangeListener(new ChangeListener() {
+			public void stateChanged(ChangeEvent e) {
+				int offset = ((JSlider)e.getSource()).getValue();
+				timer.setDelay(TIMER_MAX - offset);
+			}
+		});
+		// SPEED SLIDER END <---
 
 		// BUTTONS START --->
 		startButton = new JButton("Start");
@@ -210,10 +220,8 @@ public class GraphAlgorithmAnimate extends JPanel {
 				if(text == "Step"){
 					algorithm.step();
 					repaint();
-					if(algorithm.isDone()){ 
+					if(algorithm.isDone()) 
 						buttonStartState();
-						startButton.setEnabled(false);
-					}
 				}else if(text == "Pause"){
 					timer.stop();
 					startButton.setText("Resume");
@@ -239,6 +247,15 @@ public class GraphAlgorithmAnimate extends JPanel {
 			}	
 		});
 		// MOUSE EVENTS END <---
+
+		// DIMENSION RESIZING --->
+		addComponentListener(new ComponentAdapter(){
+			@Override
+			public void componentResized(ComponentEvent e){
+				setDimension(e.getComponent().getWidth(), e.getComponent().getHeight());
+			}
+		});
+		// DIMENSION RESIZING END <---
 		
 		// Add all items to Frame --->
 		add(menuBar);
@@ -248,6 +265,7 @@ public class GraphAlgorithmAnimate extends JPanel {
 		add(genGraphButton);
 		add(startButton);
 		add(pauseButton);
+		add(timerSpeed);
 		add(new JLabel("Starting Vertex: "));
 		add(sourceLabel);
 	}
@@ -257,12 +275,15 @@ public class GraphAlgorithmAnimate extends JPanel {
 	 * */
 	private void buttonStartState(){
 		timer.stop();
-		startButton.setEnabled(true);
 		startButton.setText("Start");
-		pauseButton.setEnabled(false);
+		startButton.setEnabled(true);
 		pauseButton.setText("Pause");
+		pauseButton.setEnabled(false);
 	}
 
+	/*
+	 * Method to find the Vertex which is within RADIUS distance from the given x,y
+	 * */
 	private int findClosestVertex(int x1, int y1){
 		for(int i = 0; i < verticies.length; i++){
 			int x2 = (int)(verticies[i].Location.x * W_OFF) + X_OFF + DIAMETER / 2;
@@ -290,6 +311,11 @@ public class GraphAlgorithmAnimate extends JPanel {
 		g.setColor(Colors.GetColor(v.Color));
 		g.drawOval(x, y, DIAMETER, DIAMETER);
 		g.drawString( Character.toString(((char)(v.ID + 'A'))), x + off - 6, y + off + 6);
+		if((String)(algorithmMenu).getSelectedItem() == Algorithm.DIJKSTRAS || 
+		(String)(algorithmMenu).getSelectedItem() == Algorithm.BFS ){ 
+			String d = (v.Distance == Integer.MAX_VALUE) ? "INF" : Integer.toString(v.Distance);
+			g.drawString(d, x, y);
+		}
 	}
 
 	/*
@@ -302,7 +328,7 @@ public class GraphAlgorithmAnimate extends JPanel {
 	 * with says: 
 	 * v = P1 - P0 
 	 * u = v / ||v|| 
-	 * P3 = P1/0 +- (c * u) where c is distance away from point
+	 * P3 = P{0|1} +- (c * u) where c is distance away from point
 	 * */
 	public void drawEdge(Graphics2D g, Edge e) {
 		int rad = DIAMETER / 2;
@@ -326,7 +352,7 @@ public class GraphAlgorithmAnimate extends JPanel {
 		// If graph is weighted then we need to print the weight as well
 		if(e.isWeighted){
 			mag_v = Math.abs(mag_v);
-			g.setColor(Colors.GetColor(Colors.INIT)); 
+			g.setColor(Colors.GetColor(Colors.INIT)); // Draw text in initial color (BLACK)
 			g.drawString(Integer.toString(e.Weight), 
 					(int)(x1 + mag_v / 3.5 * v.x), (int)(y1 + mag_v / 3.5 * v.y));
 		}
@@ -366,6 +392,13 @@ public class GraphAlgorithmAnimate extends JPanel {
 		ExistingGraph = true; // Alert the view that the graph now exists
 		// Repaint the view with the newly created graph
 		repaint();
+	}
+
+	private void setDimension(int width, int height){
+		DIM_W = width;
+		DIM_H = height;
+		W_OFF = DIM_W - DIAMETER * 2;
+		H_OFF = DIM_H - DIAMETER * 3;
 	}
 
 	@Override
