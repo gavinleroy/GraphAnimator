@@ -15,21 +15,19 @@ class DFSAlgorithm implements Algorithm {
 	private Graph graph;
 	private boolean done;
 	private Stack<Node> stack;
-	private boolean[] visited;
 
 	public DFSAlgorithm(Graph g, int s){
 		graph = g;
 		done = false;
 		stack = new Stack<Node>();
-		visited = new boolean[g.V];
 		graph.Verticies[s].Distance = 0;
 		addV(s); // Initialize with Source Vertex
 	}
 
 	private boolean addV(int i){
-		if(!visited[i]){
+		if(!graph.visited[i]){
 			stack.push(new Node(i, 0));
-			visited[i] = true;
+			graph.visited[i] = true;
 			graph.Verticies[i].Color = Colors.VFOCUSED;
 			return true;
 		}
@@ -37,6 +35,8 @@ class DFSAlgorithm implements Algorithm {
 	}
 
 	public void step(){
+		if(done) return;
+
 		if(stack.empty()) done = true;
 		else{
 			int graphI = stack.peek().v;

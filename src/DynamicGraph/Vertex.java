@@ -11,6 +11,6 @@ public class Vertex{
 		this.ID = n;
 		this.Color = c;
 		this.Location = p;
-		this.Distance = 0;
+		this.Distance = Integer.MAX_VALUE;
 	}
 }
