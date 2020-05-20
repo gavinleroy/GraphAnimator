@@ -312,8 +312,7 @@ public class GraphAlgorithmAnimate extends JPanel {
 		g.drawOval(x, y, DIAMETER, DIAMETER);
 		g.drawString( Character.toString(((char)(v.ID + 'A'))), x + off - 8, y + off + 8);
 		if((String)(algorithmMenu).getSelectedItem() == Algorithm.DIJKSTRAS || 
-		(String)(algorithmMenu).getSelectedItem() == Algorithm.BFS ||
- (String)(algorithmMenu).getSelectedItem() == Algorithm.PRIMS){ // TODO: remove
+		(String)(algorithmMenu).getSelectedItem() == Algorithm.BFS ){ 
 			String d = (v.Distance == Integer.MAX_VALUE) ? "INF" : Integer.toString(v.Distance);
 			g.drawString(d, x, y - 2);
 		}

@@ -7,12 +7,14 @@ public class PrimsAlgorithm implements Algorithm{
 	private Graph graph;
 	private Set<Integer> mstSet;
 	private int[] parent;
+	private boolean[] finished;
 	private boolean done;
 	private boolean itr;
 	private int graphI;
 	private int adjI;
 
 	public PrimsAlgorithm(Graph g, int s){
+		finished = new boolean[g.V];
 		mstSet = new HashSet<Integer>();
 		parent = new int[g.V];
 		graph = g;
@@ -26,9 +28,9 @@ public class PrimsAlgorithm implements Algorithm{
 	 */
 	private boolean focus(int u, int v){
 		int ei = (u != v) ? graph.EdgeIndex[u][v] : -1;
-		int nd = graph.Verticies[u].Distance + graph.Weights[u][v]; // New dist
+		int nd = graph.Weights[u][v]; // New dist
 
-		if(graph.Verticies[v].Distance > nd || u==v){ 
+		if(!finished[v] && graph.Verticies[v].Distance > nd || u == v){ 
 			parent[v] = u;
 			graph.Verticies[v].Distance = nd; 		
 			graph.Verticies[v].Color = Colors.VFOCUSED; // Set color as focused
@@ -62,6 +64,7 @@ public class PrimsAlgorithm implements Algorithm{
 				return;
 			}
 			mstSet.add(c);
+			finished[c] = true;
 			graph.Verticies[c].Color = Colors.VDONE;
 			// Add Edge into graph with color
 			if(parent[c] != c) graph.Edges[graph.EdgeIndex[parent[c]][c]].Color = Colors.EDONE;
