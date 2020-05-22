@@ -13,6 +13,7 @@ public class Colors{
 	public static final int TREEEDGE = 3;
 	public static final int BACKEDGE = 5;
 	public static final int EFOCUSED = 5;
+	public static final int EHIGHLIGHTED = 4;
 	public static final int VDONE = 3;
 	public static final int EDONE = 3;
 	public static final int VFOCUSED = 2;
