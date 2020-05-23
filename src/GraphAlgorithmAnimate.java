@@ -332,10 +332,10 @@ public class GraphAlgorithmAnimate extends JPanel {
 	 * */
 	public void drawEdge(Graphics2D g, Edge e) {
 		int rad = DIAMETER / 2;
-		int x1 = (int)(e.Begin.x * W_OFF) + rad + X_OFF;
-		int y1 = (int)(e.Begin.y * H_OFF) + rad + Y_OFF;
-		int x2 = (int)(e.End.x * W_OFF) + rad + X_OFF;
-		int y2 = (int)(e.End.y * H_OFF) + rad + Y_OFF;
+		int x1 = (int)(verticies[e.Begin].Location.x * W_OFF) + rad + X_OFF;
+		int y1 = (int)(verticies[e.Begin].Location.y * H_OFF) + rad + Y_OFF;
+		int x2 = (int)(verticies[e.End].Location.x * W_OFF) + rad + X_OFF;
+		int y2 = (int)(verticies[e.End].Location.y * H_OFF) + rad + Y_OFF;
 		Point v = new Point(x2 - x1, y2 - y1);
 		double mag_v = Math.sqrt(v.x * v.x + v.y * v.y);
 		v.x /= mag_v; // Scale v to be a normal vector

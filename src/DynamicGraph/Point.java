@@ -8,6 +8,10 @@ public class Point{
 		this.y = y;
 	}
 
+	public String toString(){
+		return Double.toString(x) + " " + Double.toString(y) + "\n";
+	}
+
 	@Override
 	public boolean equals(Object o){
 		if(o==this) return true;

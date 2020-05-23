@@ -7,9 +7,9 @@ public class Edge{
 	public boolean isDirected;
 	public int Weight;
 	public int Color;
-	public Point Begin;
-	public Point End;
-	public Edge(boolean _w, boolean _d, int w, int c, Point p1, Point p2){
+	public int Begin;
+	public int End;
+	public Edge(boolean _w, boolean _d, int w, int c, int p1, int p2){
 		this.isWeighted = _w;
 		this.isDirected = _d;
 		this.Weight = w;
