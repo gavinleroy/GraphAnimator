@@ -8,12 +8,32 @@ public class KruskalsAlgorithm implements Algorithm{
 	private boolean done;
 	private boolean used[];
 	private int ind; // Index of the sorted edges array
+	private Map<Point, Point> parent;
 
 	public KruskalsAlgorithm(Graph g){
+		parent = new HashMap<Point, Point>();
 		used = new boolean[g.E];
 		graph = g;
 		ind = 0;
 		// Sort edges
+	}
+
+	Point find(Point p){
+		Point pp = parent.get(p);
+		if(pp == null) return p;
+		else{
+			pp = find(pp);
+			parent.put(p, pp);
+			return pp;
+		}
+	}
+
+	private boolean join(Point p1, Point p2){
+		Point pp1 = find(p1);
+		Point pp2 = find(p2);
+		if(pp1.equals(pp2)) return false;
+		parent.put(p1, pp2);
+		return true;
 	}
 
 	private boolean focus(int u, int v){
@@ -35,17 +55,23 @@ public class KruskalsAlgorithm implements Algorithm{
 
 	public void step(){
 		// 1) Pick next smallest edge
-		int edgeI = findSmallest();
-		graph.Edges[i].Color = Colors.EHIGHLIGHTED;
+		int i = findSmallest();
+		if(i == -1){ 
+			done = true;
+			return;
+		}
+
+		Edge e = graph.Edges[i];
+		e.Color = Colors.EHIGHLIGHTED;
 		// 2) If it doesn't form a cycle then highlight it
-		if(noCycle(i)){
+		if(join(e.Begin, e.End)){
 			// Focus Edge
-			graph.Edges[i].Color = Colors.EDONE;
+			e.Color = Colors.EDONE;
 			// Join the verticies 
 		}else{
-			used[i] = true; // Say that it is used
-			graph.Edges[i].Color = Colors.EFOCUSED;
+			e.Color = Colors.EFOCUSED;
 		}
+		used[i] = true; // Say that it is used
 	}
 
 	public boolean isDone(){

@@ -197,6 +197,8 @@ public class Graph {
 				ret = new DijkstrasAlgorithm(this, s);
 				break;
 			case Algorithm.KRUSKALS:
+				ret = new KruskalsAlgorithm(this);
+				break;
 			case Algorithm.PRIMS:
 				ret = new PrimsAlgorithm(this, s);
 				break;
