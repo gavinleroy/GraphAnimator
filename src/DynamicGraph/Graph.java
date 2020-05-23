@@ -170,7 +170,7 @@ public class Graph {
 					G[u].add(v); // Add the edge to our adjacenty list
 					EdgeIndex[u][v] = edgec;
 					edges.add(new Edge(properties.contains(Property.WEIGHTED), dir,
-							Weights[u][v], Colors.INIT, Locations[u], Locations[v]));
+							Weights[u][v], Colors.INIT, u, v));
 					edgec++;
 				}
 			}

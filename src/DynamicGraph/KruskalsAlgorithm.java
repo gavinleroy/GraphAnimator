@@ -8,31 +8,31 @@ public class KruskalsAlgorithm implements Algorithm{
 	private boolean done;
 	private boolean used[];
 	private int ind; // Index of the sorted edges array
-	private Map<Point, Point> parent;
+	private int parent[];
 
 	public KruskalsAlgorithm(Graph g){
-		parent = new HashMap<Point, Point>();
+		parent = new int[g.V];
+		for(int i = 0; i < g.V; i++) parent[i]=-1;
 		used = new boolean[g.E];
 		graph = g;
 		ind = 0;
 		// Sort edges
 	}
 
-	Point find(Point p){
-		Point pp = parent.get(p);
-		if(pp == null) return p;
-		else{
-			pp = find(pp);
-			parent.put(p, pp);
-			return pp;
-		}
+	private int find(int p){
+		if(parent[p] < 0) return p;
+		else return (parent[p] = find(parent[p]));
 	}
 
-	private boolean join(Point p1, Point p2){
-		Point pp1 = find(p1);
-		Point pp2 = find(p2);
-		if(pp1.equals(pp2)) return false;
-		parent.put(p1, pp2);
+	private boolean join(int p1, int p2){
+		int u = find(p1);
+		int v = find(p2);
+		if(u == v) return false;
+		if(parent[u] > parent[v]) parent[u] = v;
+		else{
+			if(parent[u] == parent[v]) parent[u]--;
+			parent[v] = u;
+		}
 		return true;
 	}
 
@@ -72,6 +72,8 @@ public class KruskalsAlgorithm implements Algorithm{
 			e.Color = Colors.EFOCUSED;
 		}
 		used[i] = true; // Say that it is used
+
+		System.out.println(parent);
 	}
 
 	public boolean isDone(){
