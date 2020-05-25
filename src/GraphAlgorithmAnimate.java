@@ -30,6 +30,7 @@ public class GraphAlgorithmAnimate extends JPanel {
 	private static int Y_OFF = 40 + DIAMETER/2;
 	private static final int TIMER_MAX = 1000;
 	// GUI ITEMS
+	private ButtonState buttonstate;
 	private JSlider timerSpeed;
 	private JLabel sourceLabel;
 	private JMenuBar menuBar;
@@ -165,12 +166,9 @@ public class GraphAlgorithmAnimate extends JPanel {
 		timer = new Timer(TIMER_MAX / 2, new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if(algorithm.isDone()){
-					((Timer) e.getSource()).stop();
-					startButton.setEnabled(true);
-					pauseButton.setEnabled(false);
+					buttonstate.init();
 				}else{
 					algorithm.step();
-					startButton.setEnabled(false);
 					repaint();
 				}
 			}
@@ -188,48 +186,16 @@ public class GraphAlgorithmAnimate extends JPanel {
 		// SPEED SLIDER END <---
 
 		// BUTTONS START --->
-		startButton = new JButton("Start");
-		startButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if(ExistingGraph){
-					String text = ((JButton)e.getSource()).getText();
-					if(text == "Start"){
-						String algostring = (String)(algorithmMenu).getSelectedItem();
-						int sourceVal = (int)sourceLabel.getText().charAt(0) - (int)'A';
-						algorithm = graph.createAlgorithm(algostring, sourceVal);
-					}
-					timer.start();
-					pauseButton.setText("Pause");
-					pauseButton.setEnabled(true);
-					((JButton)e.getSource()).setEnabled(false);
-				}
-			}
-		});
+		buttonstate = new ButtonState();
+
+		startButton = new JButton();
+		startButton.addActionListener(buttonstate); 		
+
+		pauseButton = new JButton();
+		pauseButton.addActionListener(buttonstate);
+
 		genGraphButton = new JButton("Generate Graph");
-		genGraphButton.addActionListener(new ActionListener(){
-			public void actionPerformed(ActionEvent e){
-				generateNewGraph();
-				buttonStartState();
-			}
-		});
-		pauseButton = new JButton("Pause");
-		pauseButton.setEnabled(false);
-		pauseButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				String text = ((JButton)e.getSource()).getText();
-				if(text == "Step"){
-					algorithm.step();
-					repaint();
-					if(algorithm.isDone()) 
-						buttonStartState();
-				}else if(text == "Pause"){
-					timer.stop();
-					startButton.setText("Resume");
-					startButton.setEnabled(true);
-					((JButton)e.getSource()).setText("Step");
-				}
-			}
-		});
+		genGraphButton.addActionListener(buttonstate);
 		// BUTTONS END <---
 
 		// MOUSE EVENTS START --->
@@ -257,6 +223,7 @@ public class GraphAlgorithmAnimate extends JPanel {
 		});
 		// DIMENSION RESIZING END <---
 		
+		buttonstate.init();
 		// Add all items to Frame --->
 		add(menuBar);
 		add(algorithmMenu);
@@ -268,17 +235,6 @@ public class GraphAlgorithmAnimate extends JPanel {
 		add(timerSpeed);
 		add(new JLabel("Starting Vertex: "));
 		add(sourceLabel);
-	}
-
-	/*
-	 * Simple Helper method to start the buttons at their initial state
-	 * */
-	private void buttonStartState(){
-		timer.stop();
-		startButton.setText("Start");
-		startButton.setEnabled(true);
-		pauseButton.setText("Pause");
-		pauseButton.setEnabled(false);
 	}
 
 	/*
@@ -352,7 +308,6 @@ public class GraphAlgorithmAnimate extends JPanel {
 		// If graph is weighted then we need to print the weight as well
 		if(e.isWeighted){
 			mag_v = Math.abs(mag_v);
-//			g.setColor(Colors.GetColor(Colors.INIT)); // Draw text in initial color (BLACK)
 			g.drawString(Integer.toString(e.Weight), 
 					(int)(x1 + mag_v / 3.5 * v.x), (int)(y1 + mag_v / 3.5 * v.y));
 		}
@@ -426,5 +381,76 @@ public class GraphAlgorithmAnimate extends JPanel {
 				frame.setVisible(true);
 			}
 		});
+	}
+
+	/*
+	 * Object to handle the state of the two buttons available on the GUI
+	 * this allows the reduction of several buttons into two and cleanly represent
+	 * the values as states.
+	 * */
+	protected class ButtonState implements ActionListener{
+		private int state;
+		public ButtonState(){ }
+		public void init(){
+			setState0();
+		}
+		public void actionPerformed(ActionEvent e){
+			if((JButton)e.getSource() == genGraphButton){ 
+				generateNewGraph();
+				setState0();
+			}else if(ExistingGraph){
+				pressed((JButton)e.getSource());
+			}
+		}
+		public void pressed(JButton b){
+			switch(state){
+				case 0:
+					if(b==startButton){ 
+						String algostring = (String)(algorithmMenu).getSelectedItem();
+						int sourceVal = (int)sourceLabel.getText().charAt(0) - (int)'A';
+						algorithm = graph.createAlgorithm(algostring, sourceVal);
+						setState1();
+					}else if(b==pauseButton){ 
+						graph.reset();
+						repaint();
+					}
+					break;
+				case 1:
+					if(b==pauseButton) setState2();
+					break;
+				case 2:
+					if(b==startButton) setState1();
+					else if(b==pauseButton){ 
+						algorithm.step();
+						repaint();
+						if(algorithm.isDone()) setState0();
+					}
+					break;
+			}
+		}
+		private void setState0(){
+			state = 0;
+			timer.stop();
+			startButton.setText("Start");
+			startButton.setEnabled(true);
+			pauseButton.setText("Reset");
+			pauseButton.setEnabled(true);
+		}
+		private void setState1(){
+			state = 1;
+			timer.start();
+			startButton.setText("Resume");
+			startButton.setEnabled(false);
+			pauseButton.setText("Pause");
+			pauseButton.setEnabled(true);
+		}
+		private void setState2(){
+			state = 2;
+			timer.stop();
+			startButton.setText("Resume");
+			startButton.setEnabled(true);
+			pauseButton.setText("Step");
+			pauseButton.setEnabled(true);
+		}
 	}
 }

@@ -208,6 +208,20 @@ public class Graph {
 		}
 		return ret;
 	}
+
+	/*
+	 * Reset the graph colors and distances
+	 * */
+	public void reset(){
+		for(int i = 0; i < Verticies.length; i++){
+			Verticies[i].Color = Colors.INIT;
+			Verticies[i].Distance = Integer.MAX_VALUE;
+		}
+		for(int i = 0; i < Edges.length; i++){
+			Edges[i].Color = Colors.INIT;
+			Edges[i].Weight = Weights[Edges[i].Begin][Edges[i].End];
+		}
+	}
 	
 	// Returns the list of Verticies generated
 	public Vertex[] get_verticies(){
