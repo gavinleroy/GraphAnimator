@@ -50,12 +50,10 @@ class DFSAlgorithm implements Algorithm {
 				}else{ // If edge was highlighted as a Tree Edge then leave it
 					if(graph.Edges[graph.EdgeIndex[graphI][next]].Color != Colors.TREEEDGE)
 						graph.Edges[graph.EdgeIndex[graphI][next]].Color = Colors.BACKEDGE;
-					else step();	
 				}
 			}else{ // Done adding neighbors
 				graph.Verticies[graphI].Color = Colors.VDONE; // Update color
 				stack.pop(); // Remove vertex from stack
-				step();
 			}
 		}
 	}

@@ -1,5 +1,6 @@
 /*
  * GRAPH ANIMATOR
+ * 	This project animates popular Graph algorithms for educational purposes
  * Copyright (c) Gavin Gray May, 2020
  * */
 
@@ -370,6 +371,9 @@ public class GraphAlgorithmAnimate extends JPanel {
 		return new Dimension(DIM_W, DIM_H);
 	}
 
+	/*
+	 * MAIN
+	 * */
 	public static void main(String[] args) {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
@@ -387,6 +391,13 @@ public class GraphAlgorithmAnimate extends JPanel {
 	 * Object to handle the state of the two buttons available on the GUI
 	 * this allows the reduction of several buttons into two and cleanly represent
 	 * the values as states.
+	 * The three main states are:
+	 * 0) Before algorithm is started, giving the options to 
+	 * 	start the algorithm or reset the graph
+	 * 1) While the algorithm is running on a timer, the only
+	 * 	option is to pause the animation.
+	 * 2) While the animation is paused, the options are to
+	 * 	resume the running timer or take a single manual step
 	 * */
 	protected class ButtonState implements ActionListener{
 		private int state;

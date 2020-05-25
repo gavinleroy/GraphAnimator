@@ -7,7 +7,7 @@ import javax.swing.*;
 
 public class Arrow{
 	private static final int ARR_SIZE = 7;
-	public static void drawArrow(Graphics g1, int x1, int y1, int x2, int y2) {
+	public static void drawArrow(Graphics2D g1, int x1, int y1, int x2, int y2) {
 	    Graphics2D g = (Graphics2D) g1.create();
 
 	    double dx = x2 - x1, dy = y2 - y1;

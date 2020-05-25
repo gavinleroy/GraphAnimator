@@ -45,7 +45,6 @@ class BFSAlgorithm implements Algorithm {
 		}else{
 			if(adjI < graph.G[graphI].size()){ // Have more neighbors to add
 				int neighbor = graph.G[graphI].get(adjI);
-				boolean nothingDone = false;
 				if(addV( neighbor )){
 					graph.Verticies[neighbor].Distance = 
 				       		graph.Verticies[graphI].Distance + 
@@ -54,14 +53,11 @@ class BFSAlgorithm implements Algorithm {
 				}else{
 					if(graph.Edges[graph.EdgeIndex[graphI][neighbor]].Color != Colors.TREEEDGE)
 						graph.Edges[graph.EdgeIndex[graphI][neighbor]].Color = Colors.BACKEDGE;
-					else nothingDone = true;
 				}
 				adjI++;
-				if(nothingDone) step();
 			}else{ // Done adding neighbors
 				graph.Verticies[graphI].Color = Colors.VDONE; // Update color
 				itr = false;
-				step();
 			}
 		}
 	}
