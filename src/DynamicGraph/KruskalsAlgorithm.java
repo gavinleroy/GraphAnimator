@@ -7,16 +7,17 @@ public class KruskalsAlgorithm implements Algorithm{
 	private Graph graph;
 	private boolean done;
 	private int ind; // Index of the sorted edges array
+	private int added;
 	private int parent[];
 	private Edge sorted_edges[];
 
 	public KruskalsAlgorithm(Graph g){
 		parent = new int[g.V];
-		sorted_edges = g.Edges;
+		sorted_edges = g.Edges.clone();
 		Arrays.sort(sorted_edges); // Sort edges
 		for(int i = 0; i < g.V; i++) parent[i]=-1;
 		graph = g;
-		ind = 0;
+		ind = added = 0;
 	}
 
 	private int find(int p){
@@ -50,9 +51,14 @@ public class KruskalsAlgorithm implements Algorithm{
 			e.Color = Colors.EDONE;
 			graph.Verticies[e.Begin].Color = Colors.VDONE;
 			graph.Verticies[e.End].Color = Colors.VDONE;
+			added++;
 			// Join the verticies 
 		}else{
 			e.Color = Colors.EFOCUSED;
+			if(added == graph.V-1){
+				done = true;
+				while(ind<graph.E) sorted_edges[ind++].Color=Colors.EFOCUSED;
+			}
 		}
 	}
 

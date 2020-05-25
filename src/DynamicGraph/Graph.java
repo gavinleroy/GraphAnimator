@@ -149,7 +149,7 @@ public class Graph {
 		boolean dag = dir && properties.contains(Property.ACYCLIC);
 		if(properties.contains(Property.CONNECTED)) prob = 1.0; // Every edge included
 		else if(dag) prob = 0.55;
-		else prob = 0.25; 
+		else prob = 0.27; 
 		for(int u = 0; u < V; u++){
 			for(int v = 0; v < V; v++){
 				edge = false;
@@ -216,6 +216,7 @@ public class Graph {
 		for(int i = 0; i < Verticies.length; i++){
 			Verticies[i].Color = Colors.INIT;
 			Verticies[i].Distance = Integer.MAX_VALUE;
+			visited[i] = false;
 		}
 		for(int i = 0; i < Edges.length; i++){
 			Edges[i].Color = Colors.INIT;
