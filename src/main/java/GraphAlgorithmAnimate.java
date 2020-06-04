@@ -45,7 +45,7 @@ public class GraphAlgorithmAnimate extends JPanel {
 	private JComboBox algorithmMenu;
 
 	private JMenu propertiesMenu; // Property Menu Items
-	private JCheckBoxMenuItem connectedMenuItem;
+	private JCheckBoxMenuItem completeMenuItem;
 	private JCheckBoxMenuItem directedMenuItem; 
 	private JCheckBoxMenuItem weightedMenuItem; 
 	private JCheckBoxMenuItem negativeMenuItem; 
@@ -95,11 +95,11 @@ public class GraphAlgorithmAnimate extends JPanel {
 		propertiesMenu = new JMenu("Properties");
 		menuBar.add(propertiesMenu); 
 
-		connectedMenuItem = new JCheckBoxMenuItem("Connected");
-		connectedMenuItem.addActionListener(new ActionListener() {         
+		completeMenuItem = new JCheckBoxMenuItem("Complete");
+		completeMenuItem.addActionListener(new ActionListener() {         
 			public void actionPerformed(ActionEvent e) {
 				propertiesMenu.doClick();
-				if(connectedMenuItem.isSelected()) g_props.add(Graph.Property.CONNECTED);
+				if(completeMenuItem.isSelected()) g_props.add(Graph.Property.CONNECTED);
 				else g_props.remove(Graph.Property.CONNECTED);
 			}
 		});
@@ -139,7 +139,7 @@ public class GraphAlgorithmAnimate extends JPanel {
 		propertiesMenu.add(directedMenuItem);
 		propertiesMenu.add(weightedMenuItem);
 		propertiesMenu.add(negativeMenuItem);
-		propertiesMenu.add(connectedMenuItem);
+		propertiesMenu.add(completeMenuItem);
 		// Property menu and items END <--- 
 
 
